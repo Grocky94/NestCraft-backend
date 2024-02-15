@@ -20,7 +20,7 @@ app.use(cors());
 app.use(morgan('dev'));
 
 // Serving static files
-const imageDirectory = path.join(__dirname, "/uploads");
+const imageDirectory = path.join(__dirname, "./uploads");
 console.log(imageDirectory, "here")
 app.use("/image", express.static(imageDirectory));
 
