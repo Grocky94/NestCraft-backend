@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import Service from "../model/Service.js";
+import { uploadOnCloudinary } from "../uploads/Cloudinary.js";
+
 
 export const registration = async (req, res) => {
     try {
@@ -77,29 +79,31 @@ export const login = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message })
     }
 }
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now()
-        cb(null, uniqueSuffix + file.originalname);
-    }
-});
-const upload = multer({
-    storage: storage,
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         cb(null, 'uploads/');
+//     },
+//     filename: function (req, file, cb) {
+//         const uniqueSuffix = Date.now()
+//         cb(null, uniqueSuffix + file.originalname);
+//     }
+// });
+const upload = multer(
+    // {
+    // storage: storage,
     //set file limit to 1 mb
-    limits: {
-        fileSize: 500000
-    },
-    fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(JPG|JPEG|GIF|PNG|DOC|DOCX)$/i)) {
-            cb(new Error("Invalid file type"));
-        } else {
-            cb(null, true);
-        }
-    },
-});
+    // limits: {
+    //     fileSize: 500000
+    // },
+    // fileFilter(req, file, cb) {
+    //     if (!file.originalname.match(/\.(JPG|JPEG|GIF|PNG|DOC|DOCX)$/i)) {
+    //         cb(new Error("Invalid file type"));
+    //     } else {
+    //         cb(null, true);
+    //     }
+    // },
+    // }
+);
 
 export const uploadMiddleware = upload.single("image");
 
@@ -113,7 +117,7 @@ export const addServices = async (req, res) => {
 
         const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const { name, description, color } = req.body;
-        const image = req.file.filename;
+        const imageUrl = await uploadOnCloudinary(req.file.path);
         // console.log("name:", name, "description:", description, "color:", color, "image:", image)
         const userId = decodedData.id;
 
