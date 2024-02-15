@@ -8,8 +8,8 @@ import { fileURLToPath } from "url";
 import { registration, login, addServices, deleteSelected, viewCategory, uploadMiddleware } from "./controller/user.js";
 
 const app = express();
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
@@ -20,8 +20,8 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Serving static files
-// const imageDirectory = path.join(__dirname, "./uploads");
-const imageDirectory = "/mnt/uploads";
+const imageDirectory = path.join(__dirname, "./uploads");
+// const imageDirectory = "/mnt/uploads";
 console.log(imageDirectory, "here")
 app.use("/image", express.static(imageDirectory));
 
