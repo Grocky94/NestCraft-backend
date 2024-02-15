@@ -15,14 +15,21 @@ dotenv.config();
 const PORT = process.env.PORT || 4000;
 
 // Middleware
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 app.use(morgan('dev'));
 
 // Serving static files
+<<<<<<< HEAD
 // const imageDirectory = path.join(__dirname, "/uploads");
 // console.log(imageDirectory, "here")
 // app.use("/image", express.static(imageDirectory));
+=======
+const imageDirectory = path.join(__dirname, "./uploads");
+// const imageDirectory = "/mnt/uploads";
+console.log(imageDirectory, "here")
+app.use("/image", express.static(imageDirectory));
+>>>>>>> 2dba4c15188ed6d49f576c21115e3ced3e2fe209
 
 // Routes
 app.get('/', (req, res) => {
