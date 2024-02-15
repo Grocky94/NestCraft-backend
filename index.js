@@ -20,16 +20,16 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Serving static files
-<<<<<<< HEAD
+
 // const imageDirectory = path.join(__dirname, "/uploads");
 // console.log(imageDirectory, "here")
 // app.use("/image", express.static(imageDirectory));
-=======
-const imageDirectory = path.join(__dirname, "./uploads");
+
+// const imageDirectory = path.join(__dirname, "./uploads");
 // const imageDirectory = "/mnt/uploads";
-console.log(imageDirectory, "here")
-app.use("/image", express.static(imageDirectory));
->>>>>>> 2dba4c15188ed6d49f576c21115e3ced3e2fe209
+// console.log(imageDirectory, "here")
+// app.use("/image", express.static(imageDirectory));
+
 
 // Routes
 app.get('/', (req, res) => {
