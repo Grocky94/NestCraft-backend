@@ -3,13 +3,13 @@ import express from "express";
 import morgan from "morgan";
 import mongoose from "mongoose";
 import cors from "cors";
-// import path, { dirname } from "path";
-// import { fileURLToPath } from "url";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import { registration, login, addServices, deleteSelected, viewCategory, uploadMiddleware } from "./controller/user.js";
 
 const app = express();
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
@@ -21,14 +21,14 @@ app.use(morgan('dev'));
 
 // Serving static files
 
-// const imageDirectory = path.join(__dirname, "/uploads");
-// console.log(imageDirectory, "here")
-// app.use("/image", express.static(imageDirectory));
+const imageDirectory = path.join(__dirname, "/uploads");
+console.log(imageDirectory, "here")
+app.use("/image", express.static(imageDirectory));
 
 // const imageDirectory = path.join(__dirname, "./uploads");
 // const imageDirectory = "/mnt/uploads";
-// console.log(imageDirectory, "here")
-// app.use("/image", express.static(imageDirectory));
+//console.log(imageDirectory, "here")
+//app.use("/image", express.static(imageDirectory));
 
 
 // Routes
@@ -44,7 +44,7 @@ app.post('/deleteSelected', deleteSelected);
 app.post("/viewcategory", viewCategory);
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGODB_URL)
     .then(() => console.log("Database connected!"))
     .catch((err) => console.error("Database connection error:", err));
 

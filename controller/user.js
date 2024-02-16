@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import Service from "../model/Service.js";
-import { uploadOnCloudinary } from "../uploads/Cloudinary.js";
+// import { uploadOnCloudinary } from "../uploads/Cloudinary.js";
+// import { v2 as cloudinary } from "cloudinary";
 
 
 export const registration = async (req, res) => {
@@ -31,6 +32,7 @@ export const registration = async (req, res) => {
             message: "user got created",
             user
         })
+
     } catch (error) {
         console.log(error)
         return res.status(500).json({ success: false, message: error.message });
@@ -79,31 +81,31 @@ export const login = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message })
     }
 }
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, 'uploads/');
-//     },
-//     filename: function (req, file, cb) {
-//         const uniqueSuffix = Date.now()
-//         cb(null, uniqueSuffix + file.originalname);
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/temp');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now()
+        cb(null, uniqueSuffix + file.originalname);
+    }
+});
+const upload = multer({ storage });
+// {
+// storage: storage,
+//set file limit to 1 mb
+// limits: {
+//     fileSize: 500000
+// },
+// fileFilter(req, file, cb) {
+//     if (!file.originalname.match(/\.(JPG|JPEG|GIF|PNG|DOC|DOCX)$/i)) {
+//         cb(new Error("Invalid file type"));
+//     } else {
+//         cb(null, true);
 //     }
-// });
-const upload = multer(
-    // {
-    // storage: storage,
-    //set file limit to 1 mb
-    // limits: {
-    //     fileSize: 500000
-    // },
-    // fileFilter(req, file, cb) {
-    //     if (!file.originalname.match(/\.(JPG|JPEG|GIF|PNG|DOC|DOCX)$/i)) {
-    //         cb(new Error("Invalid file type"));
-    //     } else {
-    //         cb(null, true);
-    //     }
-    // },
-    // }
-);
+// },
+// }
+
 
 export const uploadMiddleware = upload.single("image");
 
@@ -117,7 +119,9 @@ export const addServices = async (req, res) => {
 
         const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const { name, description, color } = req.body;
-        const imageUrl = await uploadOnCloudinary(req.file.path);
+        console.log(req.file.path, "here is may image path");
+        const imageUrl = req.file.path
+        // const imageUrl = await uploadOnCloudinary(req.file.path);
         // console.log("name:", name, "description:", description, "color:", color, "image:", image)
         const userId = decodedData.id;
 
@@ -131,7 +135,7 @@ export const addServices = async (req, res) => {
             name,
             description,
             color,
-            image,
+            image: imageUrl,
             userId,
         });
         await newData.save();
@@ -156,6 +160,15 @@ export const deleteSelected = async (req, res) => {
         }
         const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY)
         const userId = decodedData.id
+
+        // Delete images from Cloudinary
+        // for (const serviceId of selectedCheckboxes) {
+        //     const service = await Service.findOne({ userId, _id: serviceId });
+        //     if (service && service.image) {
+        //         const publicId = service.image.split("/").pop().replace(/\.[^/.]+$/, ""); // Extract public ID from the image URL
+        //         await cloudinary.uploader.destroy(publicId); // Delete the image from Cloudinary
+        //     }
+        // }
 
         const result = await Service.deleteMany({ userId, _id: { $in: selectedCheckboxes } });
         if (result.deletedCount > 0) {
