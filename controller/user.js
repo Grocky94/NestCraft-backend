@@ -82,9 +82,9 @@ export const login = async (req, res) => {
     }
 }
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './public/temp');
-    },
+    // destination: function (req, file, cb) {
+    //     cb(null, './public/temp');
+    // },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now()
         cb(null, uniqueSuffix + file.originalname);
@@ -120,8 +120,8 @@ export const addServices = async (req, res) => {
         const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const { name, description, color } = req.body;
         console.log(req.file.path, "here is may image path");
-        const imageUrl = req.file.buffer
-        // const imageUrl = await uploadOnCloudinary(req.file.path);
+        // const imageUrl = req.file.filename
+        const imageUrl = await uploadOnCloudinary(req.file);
         // console.log("name:", name, "description:", description, "color:", color, "image:", image)
         const userId = decodedData.id;
 
@@ -162,13 +162,13 @@ export const deleteSelected = async (req, res) => {
         const userId = decodedData.id
 
         // Delete images from Cloudinary
-        // for (const serviceId of selectedCheckboxes) {
-        //     const service = await Service.findOne({ userId, _id: serviceId });
-        //     if (service && service.image) {
-        //         const publicId = service.image.split("/").pop().replace(/\.[^/.]+$/, ""); // Extract public ID from the image URL
-        //         await cloudinary.uploader.destroy(publicId); // Delete the image from Cloudinary
-        //     }
-        // }
+        for (const serviceId of selectedCheckboxes) {
+            const service = await Service.findOne({ userId, _id: serviceId });
+            if (service && service.image) {
+                const publicId = service.image.split("/").pop().replace(/\.[^/.]+$/, ""); // Extract public ID from the image URL
+                await cloudinary.uploader.destroy(publicId); // Delete the image from Cloudinary
+            }
+        }
 
         const result = await Service.deleteMany({ userId, _id: { $in: selectedCheckboxes } });
         if (result.deletedCount > 0) {
