@@ -120,7 +120,7 @@ export const addServices = async (req, res) => {
         const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const { name, description, color } = req.body;
         console.log(req.file.path, "here is may image path");
-        const imageUrl = req.file.path
+        const imageUrl = req.file.buffer
         // const imageUrl = await uploadOnCloudinary(req.file.path);
         // console.log("name:", name, "description:", description, "color:", color, "image:", image)
         const userId = decodedData.id;
