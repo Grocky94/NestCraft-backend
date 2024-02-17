@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import Service from "../model/Service.js";
-// import { uploadOnCloudinary } from "../uploads/Cloudinary.js";
-// import { v2 as cloudinary } from "cloudinary";
+import { uploadOnCloudinary } from "../uploads/Cloudinary.js";
+import { v2 as cloudinary } from "cloudinary";
 
 
 export const registration = async (req, res) => {
@@ -82,30 +82,16 @@ export const login = async (req, res) => {
     }
 }
 const storage = multer.diskStorage({
-    // destination: function (req, file, cb) {
-    //     cb(null, './public/temp');
-    // },
+    destination: function (req, file, cb) {
+        cb(null, './public/temp'); // Specify the destination folder here
+    },
     filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now()
-        cb(null, uniqueSuffix + file.originalname);
+        const uniqueSuffix = Date.now();
+        cb(null, uniqueSuffix + '-' + file.originalname);
     }
 });
-const upload = multer({ storage });
-// {
-// storage: storage,
-//set file limit to 1 mb
-// limits: {
-//     fileSize: 500000
-// },
-// fileFilter(req, file, cb) {
-//     if (!file.originalname.match(/\.(JPG|JPEG|GIF|PNG|DOC|DOCX)$/i)) {
-//         cb(new Error("Invalid file type"));
-//     } else {
-//         cb(null, true);
-//     }
-// },
-// }
 
+const upload = multer({ storage });
 
 export const uploadMiddleware = upload.single("image");
 
@@ -116,19 +102,16 @@ export const addServices = async (req, res) => {
         }
 
         const token = req.headers.authorization.split(" ")[1];
-
         const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
         const { name, description, color } = req.body;
-        console.log(req.file.path, "here is may image path");
-        // const imageUrl = req.file.filename
-        const imageUrl = await uploadOnCloudinary(req.file);
-        // console.log("name:", name, "description:", description, "color:", color, "image:", image)
+        const imageUrl = await uploadOnCloudinary(req.file.path); // Use req.file.path
         const userId = decodedData.id;
 
         const isServiceExist = await Service.findOne({ name, userId });
 
         if (isServiceExist) {
-            return res.status(404).json({ success: false, message: "Service already exists" });
+            return res.status(409).json({ success: false, message: "Service Name already exists" });
         }
 
         const newData = new Service({
@@ -138,6 +121,7 @@ export const addServices = async (req, res) => {
             image: imageUrl,
             userId,
         });
+
         await newData.save();
 
         res.status(200).json({
@@ -147,10 +131,11 @@ export const addServices = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
-}
+};
+
 
 export const deleteSelected = async (req, res) => {
     try {
